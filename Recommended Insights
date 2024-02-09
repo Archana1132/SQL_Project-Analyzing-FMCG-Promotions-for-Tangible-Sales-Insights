@@ -1,0 +1,119 @@
+-----------------------------------------------------------------------------------------------------------
+ Store Performance Analysis
+ -----------------------------------------------------------
+
+1)Top 10 stores in terms of IR from Promotions
+
+Select store_id,city,
+concat(round(SUM(IR)/1000000,2),'M') as Incremental_Revenue
+From Revenue
+group by store_id,city
+order by Incremental_Revenue desc
+limit 10
+
+--------------------------------------------------------------------------------------
+--2)Bottom 10 stores by ISU during promotional offers
+
+Select store_id,city,sum(ISU) as Incremental_Sold_Unit
+From Revenue
+group by store_id,city
+order by Incremental_Sold_Unit asc
+limit 10
+----------------------------------------------------------------------------
+--3Q)Incremental Revenue of product and category by IR%
+
+Select city,promo_type,
+concat(round(SUM(IR)/1000000,2),'M') as Incremental_Revenue
+From Revenue
+group by city,promo_type
+order by Incremental_Revenue desc
+
+---Home care and Personal care categories are worst performed in ISU
+Select category,product_name,sum(ISU) as Incremental_Sold_Unit
+From Revenue
+group by product_name,category
+order by Incremental_Sold_Unit asc
+
+-----------------------------------------------------------------------------------------------------------
+ Promotion Analysis
+ -----------------------------------------------------------
+ --1Q) Top 2 promotional type based on highest IR
+ 
+ Select promo_type,
+ concat(round(SUM(IR)/1000000,2),'M') as Incremental_Revenue
+ From Revenue
+ group by promo_type
+ order by Incremental_Revenue desc
+ limit 2
+ 
+ -------------------------------------------------------
+ --2Q)Bottom 2 Promotional types on ISU
+ 
+ Select promo_type,SUM(ISU) as Incremental_Sold_Unit
+ From Revenue
+ group by promo_type 
+ order by Incremental_Sold_Unit asc
+ limit 2
+ 
+ ---------------------------------------------------------------
+
+--3Q significant difference of promo type BOGOF vs 500 cashback
+
+Select promo_type,
+ concat(round(SUM(IR)/1000000,2),'M') as Incremental_Revenue
+ From Revenue
+ group by promo_type
+ order by Incremental_Revenue desc
+
+ //by performing the above query
+ 500 cashback - for the combo pack of 8 products it has the major revenue of 91.05M
+ BOGOF,Chakki_Atta . I think people love chapathi - 18.75 M
+ bogof for grocery & staples,home appliances and home care products and it has a major differnece with 500 cashback
+ 
+ -----------------------------------------------------------------------------------------------------------------------------------------
+--4Q) which promotion strikes the balance between IR and ISU
+
+Select promo_type,sum(ISU) as ISU,
+round(sum(ISU)/sum(`quantity_sold(before_promo)`)*100,2) as `ISU_%`,
+CONCAT(ROUND(sum(IR)/1000000,2),'M') AS IR,
+round(SUM(IR)/SUM(Revenue_Before_Promo)*100,2) as `IR%`
+From revenue 
+group by promo_type
+order by IR desc,ISU desc
+
+// by running the query ,500 cashback has 40881 sold units and 91.05M IR
+BOGOF sold units 372k and revenue 69.31m
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+Product and Category Analysis
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+--1Q) which product has siginificant lift in sales from the promotion
+
+select category,product_name,sum(`quantity_sold(before_promo)`) as Sales_Before_Promotion,
+sum(Sales_After_Promo) as Sales_After_Promotion,sum(ISU) as ISU
+From revenue
+group by category,product_name
+order by ISU desc
+
+
+-----------------------------------------------------------------------------------------------
+--2Q)products that performed exceptionally well and poor to promotions
+--combo ,oil,atta --exceptionally well/grocery staples anc combo 1
+--poor-personal care ,home care - dishwash sponge,fusion container set 3
+
+-------------------------------------------------------------------------
+--3Q)
+
+SELECT
+    category,
+    promo_type,
+    (
+        (COUNT(*) * SUM(ISU * IR) - SUM(ISU) * SUM(IR)) /
+        (SQRT((COUNT(*) * SUM(ISU * ISU) - SUM(ISU) * SUM(ISU)) * (COUNT(*) * SUM(IR * IR) - SUM(IR) * SUM(IR))))
+    ) AS correlation
+FROM
+    revenue
+GROUP BY
+    category, promo_type;
