@@ -25,11 +25,18 @@
 - Insights Presentation: Key findings.
 - Recommendations: Strategic suggestions.
 
+  
+## Visualization:
+  Utilizing charts, graphs, and tables for visual representation.
+  
+  [Power BI Dashboard Link](https://app.powerbi.com/view?r=eyJrIjoiMDhiZDJkNDgtMTc2NC00M2RkLWIxMjktMWUyZTM3OGVmMjZiIiwidCI6ImM2ZTU0OWIzLTVmNDUtNDAzMi1hYWU5LWQ0MjQ0ZGM1YjJjNCJ9)
+
 ## Timeline
 - Expected completion within [05/03/2024].
 
 **By:** Tony (Analytics Manager)  
 **Date:** [10/02/2024]
+
 
 
 
